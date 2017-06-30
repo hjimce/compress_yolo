@@ -196,13 +196,16 @@ void forward_network(network net)
     }
     calc_network_cost(net);
 }
+
+/******************************add prune networks weights,by hjimce*****************/
+
 #ifdef PRUNE
 //卷积层权重修剪
 int prune_convolutional_layer(layer l){
     int size = l.size*l.size*l.c*l.n;
     int zeros_num=0;
     for (int i = 0; i < size; ++i) {
-        if (l.weights[i]<0.0001){
+        if (l.weights[i]<0.01){
             l.weights[i]=0;
             l.weight_updates[i]=0;
             zeros_num++;

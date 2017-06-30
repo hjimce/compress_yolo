@@ -70,6 +70,32 @@ void binarize_weights_gpu(float *weights, int n, int size, float *binary)
     check_error(cudaPeekAtLastError());
 }
 
+
+
+
+
+/**************************prune network weights*************************/
+//add by hjimce
+__global__ void prune_kernel(int N, float *weights,float *update_weights, float threshold, int INCX)
+{
+    int i = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
+    if(i < N) {
+        if (weights[i*INCX]<threshold){
+            weights[i*INCX] = 0;
+            update_weights[i*INCX] = 0;
+        }
+    }
+}
+void prune_gpu(int N, float * X, float * Y, float threhold,int INCY)
+{
+    prune_kernel<<<cuda_gridsize(N), BLOCK>>>(N, X,  Y,threhold, INCY);
+    check_error(cudaPeekAtLastError());
+}
+
+
+
+
+
 void forward_convolutional_layer_gpu(convolutional_layer l, network net)
 {
     fill_gpu(l.outputs*l.batch, 0, l.output_gpu, 1);
@@ -289,7 +315,9 @@ void update_convolutional_layer_gpu(layer l, update_args a)
     int batch = a.batch;
 
     int size = l.size*l.size*l.c*l.n;
-
+#ifdef PRUNE
+    prune_gpu(size,l.weights_gpu,l.weight_updates_gpu,0.01,1);
+#endif
     if(a.adam){
         adam_update_gpu(l.weights_gpu, l.weight_updates_gpu, l.m_gpu, l.v_gpu, a.B1, a.B2, a.eps, decay, learning_rate, size, batch, a.t);
         adam_update_gpu(l.biases_gpu, l.bias_updates_gpu, l.bias_m_gpu, l.bias_v_gpu, a.B1, a.B2, a.eps, decay, learning_rate, l.n, batch, a.t);

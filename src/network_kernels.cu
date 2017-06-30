@@ -76,21 +76,7 @@ void backward_network_gpu(network net)
         l.backward_gpu(l, net);
     }
 }
-#ifdef PRUNE
-//卷积层权重修剪
-int prune_convolutional_layer_gpu(layer l){
-    int size = l.size*l.size*l.c*l.n;
-    int zeros_num=0;
-    for (int i = 0; i < size; ++i) {
-        if (l.weights_gpu[i]<0.0001){
-            l.weights_gpu[i]=0;
-            l.weight_updates_gpu[i]=0;
-            zeros_num++;
-        }
-    }
-    return zeros_num;
-}
-#endif
+
 void update_network_gpu(network net)
 {
     cuda_set_device(net.gpu_index);
@@ -106,22 +92,12 @@ void update_network_gpu(network net)
     a.eps = net.eps;
     ++*net.t;
     a.t = (*net.t);
-    int sum_zero_num=0;
-    int sum_all_num=0;
     for(i = 0; i < net.n; ++i){
         layer l = net.layers[i];
-        if(l.type==CONVOLUTIONAL){
-            #ifdef PRUNE
-                int layer_zero_num=prune_convolutional_layer_gpu(l);
-                sum_zero_num+=layer_zero_num;
-                sum_all_num+=l.size*l.size*l.c*l.n;
-            #endif
-        }
         if(l.update_gpu){
             l.update_gpu(l, a);
         }
     }
-    fprintf(stderr, "prune zeros:%d,all:%d\n",sum_zero_num,sum_all_num);
 }
 
 void harmless_update_network_gpu(network net)
