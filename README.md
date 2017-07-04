@@ -20,4 +20,4 @@
 
 compress the coco_results.json in results file and commit to https://competitions.codalab.org/competitions/5181#participate-submit_results
 
-实验结果：压缩比80%
+实验结果：

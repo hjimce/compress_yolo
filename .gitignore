@@ -28,3 +28,5 @@ Icon?
 Thumbs.db
 *.swp
 backup/
+pretrain/
+results/
