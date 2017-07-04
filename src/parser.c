@@ -1063,6 +1063,13 @@ void load_convolutional_weights(layer l, FILE *fp)
         }
     }
     fread(l.weights, sizeof(float), num, fp);
+/*#ifdef PRUNE
+    for (int i = 0; i < num; ++i) {
+        if (l.weights[i]<0.001){
+            l.weights[i]=0;
+        }
+    }
+#endif*/
     //if(l.c == 3) scal_cpu(num, 1./256, l.weights, 1);
     if (l.flipped) {
         transpose_matrix(l.weights, l.c*l.size*l.size, l.n);

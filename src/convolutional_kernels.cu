@@ -80,8 +80,8 @@ __global__ void prune_kernel(int N, float *weights,float *update_weights, float 
 {
     int i = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
     if(i < N) {
-        if (weights[i*INCX]<threshold){
-            weights[i*INCX] = 0;
+        if (fabs(weights[i*INCX])<threshold){
+            weights[i*INCX]=0;
             update_weights[i*INCX] = 0;
         }
     }
@@ -316,7 +316,8 @@ void update_convolutional_layer_gpu(layer l, update_args a)
 
     int size = l.size*l.size*l.c*l.n;
 #ifdef PRUNE
-    prune_gpu(size,l.weights_gpu,l.weight_updates_gpu,0.01,1);
+    prune_gpu(size,l.weights_gpu,l.weight_updates_gpu,0.001,1);
+
 #endif
     if(a.adam){
         adam_update_gpu(l.weights_gpu, l.weight_updates_gpu, l.m_gpu, l.v_gpu, a.B1, a.B2, a.eps, decay, learning_rate, size, batch, a.t);
