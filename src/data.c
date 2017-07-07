@@ -387,6 +387,7 @@ data load_data_captcha_encode(char **paths, int n, int m, int w, int h)
     return d;
 }
 
+//通过查找图片路径中，是否有与标签字符串相同的子字符串，来判断图片标签类别
 void fill_truth(char *path, char **labels, int k, float *truth)
 {
     int i;

@@ -30,3 +30,7 @@ Thumbs.db
 backup/
 pretrain/
 results/
+imagenet/
+*.weights
+*.json
+temp/
